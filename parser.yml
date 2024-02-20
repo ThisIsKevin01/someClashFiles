@@ -1,0 +1,315 @@
+# 要使用这个parser,在订阅链接后面加上#parser
+# 这个parser提取出Clash订阅链接中的proxy并且去除掉其他的rules和proxy groups
+# 然后再加入自定义配置的proxy groups和rules
+# 达到类似引用proxy providers的效果
+parsers:
+  - url: https://cdn.xmrth.one/link/jgy59hnpmyli5fvz?clash=2&extend=1
+    yaml:
+      prepend-rules:
+        - DOMAIN-SUFFIX,googlevideo.com,🎬Youtube # rules最前面增加一个规则
+        - DOMAIN-SUFFIX,ttvnw.net,🎬Youtube
+        - IP-CIDR,91.108.56.0/22,🎬Youtube,no-resolve
+  # 这里设置如何匹配url,也可以直接使用url
+  # url: www.url.com
+  - reg: ^.*#parser$
+  # 下面是删除服务商自带的策略组和规则
+    code: |
+        module.exports.parse = (raw, { yaml }) => {
+          const rawObj = yaml.parse(raw)
+          const groups = []
+          const rules = []
+          return yaml.stringify({ ...rawObj, 'proxy-groups': groups, rules })
+        } 
+    # 往yaml文件中添加配置
+    yaml:
+        # 建立自定义的proxy groups
+        prepend-proxy-groups: # 建立策略组
+        - name: 🔰国外流量
+          type: select
+          proxies:
+            - ⚖️🇭🇰-负载均衡
+            - ⚖️🇭🇰-负载均衡-中继动态
+            - ⚖️🇭🇰-负载均衡-中继NF
+            - ⚖️🇭🇰-负载均衡-IPLC
+            - 🇭🇰
+            - 🇹🇼
+            - 🇸🇬
+            - 🇯🇵
+            - 🇺🇸
+            - 🏳️
+            - 🚀直接连接
+        - name: 💬国外媒体-文字图片
+          type: select
+          proxies:
+            - 🔰国外流量
+            - ⚖️🇭🇰-负载均衡
+            - ⚖️🇭🇰-负载均衡-中继动态
+            - ⚖️🇭🇰-负载均衡-中继NF
+            - ⚖️🇭🇰-负载均衡-IPLC
+            - 🇭🇰
+            - 🇹🇼
+            - 🇸🇬
+            - 🇯🇵
+            - 🇺🇸
+            - 🏳️
+        - name: 🎬国外媒体-视频
+          type: select
+          proxies:
+            - 🔰国外流量
+            - ⚖️🇭🇰-负载均衡
+            - ⚖️🇭🇰-负载均衡-中继动态
+            - ⚖️🇭🇰-负载均衡-中继NF
+            - ⚖️🇭🇰-负载均衡-IPLC
+            - 🇭🇰
+            - 🇹🇼
+            - 🇸🇬
+            - 🇯🇵
+            - 🇺🇸
+            - 🏳️
+        - name: ⚓️其他流量
+          type: select
+          proxies:
+            - 🔰国外流量
+            - 🚀直接连接
+            - ⚖️🇭🇰-负载均衡
+            - ⚖️🇭🇰-负载均衡-中继动态
+            - ⚖️🇭🇰-负载均衡-中继NF
+            - ⚖️🇭🇰-负载均衡-IPLC
+            - 🇭🇰
+            - 🇹🇼
+            - 🇸🇬
+            - 🇯🇵
+            - 🇺🇸
+            - 🏳️
+        - name: ✈️Telegram
+          type: select
+          proxies:
+            - 🔰国外流量
+            - ⚖️🇭🇰-负载均衡
+            - ⚖️🇭🇰-负载均衡-中继动态
+            - ⚖️🇭🇰-负载均衡-中继NF
+            - ⚖️🇭🇰-负载均衡-IPLC
+            - 🇭🇰
+            - 🇹🇼
+            - 🇸🇬
+            - 🇯🇵
+            - 🇺🇸
+            - 🏳️
+        - name: 📽Netflix
+          type: select
+          proxies:
+            - 🔰国外流量
+            - ⚖️🇭🇰-负载均衡
+            - ⚖️🇭🇰-负载均衡-中继动态
+            - ⚖️🇭🇰-负载均衡-中继NF
+            - ⚖️🇭🇰-负载均衡-IPLC
+            - 🇭🇰
+            - 🇹🇼
+            - 🇸🇬
+            - 🇯🇵
+            - 🇺🇸
+            - 🏳️
+        - name: 🎬哔哩哔哩
+          type: select
+          proxies:
+            - 🚀直接连接
+            - 🇭🇰
+            - 🇹🇼
+        - name: 🍎苹果服务
+          type: select
+          proxies:
+            - 🚀直接连接
+            - 🔰国外流量
+        - name: 🚀直接连接
+          type: select
+          proxies:
+            - DIRECT
+        - name: ⚖️🇭🇰-负载均衡
+          type: load-balance
+          url: http://www.google.com/generate_204
+          interval: 300
+          strategy: consistent-hashing
+          proxies:
+        - name: ⚖️🇭🇰-负载均衡-中继动态
+          type: load-balance
+          url: http://www.google.com/generate_204
+          interval: 300
+          strategy: consistent-hashing
+          proxies:
+        - name: ⚖️🇭🇰-负载均衡-中继NF
+          type: load-balance
+          url: http://www.google.com/generate_204
+          interval: 300
+          strategy: consistent-hashing
+          proxies:
+        - name: ⚖️🇭🇰-负载均衡-IPLC
+          type: load-balance
+          url: http://www.google.com/generate_204
+          interval: 300
+          strategy: consistent-hashing
+          proxies:
+        - name: 🇭🇰
+          type: select
+          proxies:
+        - name: 🇹🇼
+          type: select
+          proxies:
+        - name: 🇸🇬
+          type: select
+          proxies:
+        - name: 🇯🇵
+          type: select
+          proxies:
+        - name: 🇺🇸
+          type: select
+          proxies:
+        - name: 🏳️
+          type: select
+          proxies:
+        
+        # 往proxy groups中加入proxy节点 使用正则表达式,多个表达式用|分隔
+        commands:
+          - proxy-groups.(⚖️🇭🇰-负载均衡).proxies=[]proxyNames|HK \d{3}
+          - proxy-groups.(⚖️🇭🇰-负载均衡-中继动态).proxies=[]proxyNames|香港.+中继\s动态
+          - proxy-groups.(⚖️🇭🇰-负载均衡-中继NF).proxies=[]proxyNames|香港.+中继\sNF
+          - proxy-groups.(⚖️🇭🇰-负载均衡-IPLC).proxies=[]proxyNames|IPLC.*香港
+          - proxy-groups.(🇭🇰).proxies=[]proxyNames|香港|HK
+          - proxy-groups.(🇹🇼).proxies=[]proxyNames|台湾|TW
+          - proxy-groups.(🇸🇬).proxies=[]proxyNames|狮城|新加坡|SG
+          - proxy-groups.(🇯🇵).proxies=[]proxyNames|日本|JP
+          - proxy-groups.(🇺🇸).proxies=[]proxyNames|美国|US
+          - proxy-groups.(🏳️).proxies=[]proxyNames|韩国|英国|俄罗斯|阿根廷|马来|土耳其|RU
+
+        # 配置自定义规则
+        prepend-rules:
+          - DOMAIN-SUFFIX,googlevideo.com,🎬国外媒体-视频
+          - DOMAIN-SUFFIX,ttvnw.net,🎬国外媒体-视频
+          - IP-CIDR,91.108.56.0/22,🎬国外媒体-视频,no-resolve
+          - DOMAIN-SUFFIX,biliapi.com,🎬哔哩哔哩
+          - DOMAIN-SUFFIX,biliapi.net,🎬哔哩哔哩
+          - DOMAIN-SUFFIX,bilibili.com,🎬哔哩哔哩
+          - DOMAIN-SUFFIX,bilibili.tv,🎬哔哩哔哩
+          - DOMAIN-SUFFIX,bilivideo.com,🎬哔哩哔哩
+          - DOMAIN-SUFFIX,netflix.com,📽Netflix
+          - DOMAIN-SUFFIX,netflix.net,📽Netflix
+          - DOMAIN-SUFFIX,nflxext.com,📽Netflix
+          - DOMAIN-SUFFIX,nflximg.com,📽Netflix
+          - DOMAIN-SUFFIX,nflximg.net,📽Netflix
+          - DOMAIN-SUFFIX,nflxso.net,📽Netflix
+          - DOMAIN-SUFFIX,nflxvideo.net,📽Netflix
+          - DOMAIN-SUFFIX,netflixdnstest0.com,📽Netflix
+          - DOMAIN-SUFFIX,netflixdnstest1.com,📽Netflix
+          - DOMAIN-SUFFIX,netflixdnstest2.com,📽Netflix
+          - DOMAIN-SUFFIX,netflixdnstest3.com,📽Netflix
+          - DOMAIN-SUFFIX,netflixdnstest4.com,📽Netflix
+          - DOMAIN-SUFFIX,netflixdnstest5.com,📽Netflix
+          - DOMAIN-SUFFIX,netflixdnstest6.com,📽Netflix
+          - DOMAIN-SUFFIX,netflixdnstest7.com,📽Netflix
+          - DOMAIN-SUFFIX,netflixdnstest8.com,📽Netflix
+          - DOMAIN-SUFFIX,netflixdnstest9.com,📽Netflix
+          - IP-CIDR,23.246.0.0/18,📽Netflix,no-resolve
+          - IP-CIDR,37.77.184.0/21,📽Netflix,no-resolve
+          - IP-CIDR,45.57.0.0/17,📽Netflix,no-resolve
+          - IP-CIDR,64.120.128.0/17,📽Netflix,no-resolve
+          - IP-CIDR,66.197.128.0/17,📽Netflix,no-resolve
+          - IP-CIDR,108.175.32.0/20,📽Netflix,no-resolve
+          - IP-CIDR,192.173.64.0/18,📽Netflix,no-resolve
+          - IP-CIDR,198.38.96.0/19,📽Netflix,no-resolve
+          - IP-CIDR,198.45.48.0/20,📽Netflix,no-resolve
+          # 配置Github上的规则集
+          - RULE-SET,applications,DIRECT
+          - DOMAIN,clash.razord.top,DIRECT
+          - DOMAIN,yacd.haishan.me,DIRECT
+          - RULE-SET,private,DIRECT
+          - RULE-SET,reject,REJECT
+          - RULE-SET,icloud,🍎苹果服务
+          - RULE-SET,apple,🍎苹果服务
+          - RULE-SET,google,🔰国外流量
+          - RULE-SET,proxy,💬国外媒体-文字图片
+          - RULE-SET,direct,DIRECT
+          - RULE-SET,lancidr,DIRECT
+          - RULE-SET,cncidr,DIRECT
+          - RULE-SET,telegramcidr,✈️Telegram
+          - GEOIP,LAN,DIRECT,no-resolve
+          - GEOIP,CN,DIRECT,no-resolve
+          - MATCH,⚓️其他流量
+        # 引用Github上的规则集
+        mix-rule-providers:
+          reject:
+            type: http
+            behavior: domain
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt
+            path: ./ruleset/reject.yaml
+            interval: 86400
+          icloud:
+            type: http
+            behavior: domain
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/icloud.txt
+            path: ./ruleset/icloud.yaml
+            interval: 86400
+          apple:
+            type: http
+            behavior: domain
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/apple.txt
+            path: ./ruleset/apple.yaml
+            interval: 86400
+          google:
+            type: http
+            behavior: domain
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/google.txt
+            path: ./ruleset/google.yaml
+            interval: 86400
+          proxy:
+            type: http
+            behavior: domain
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/proxy.txt
+            path: ./ruleset/proxy.yaml
+            interval: 86400
+          direct:
+            type: http
+            behavior: domain
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/direct.txt
+            path: ./ruleset/direct.yaml
+            interval: 86400
+          private:
+            type: http
+            behavior: domain
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/private.txt
+            path: ./ruleset/private.yaml
+            interval: 86400
+          gfw:
+            type: http
+            behavior: domain
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/gfw.txt
+            path: ./ruleset/gfw.yaml
+            interval: 86400
+          tld-not-cn:
+            type: http
+            behavior: domain
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/tld-not-cn.txt
+            path: ./ruleset/tld-not-cn.yaml
+            interval: 86400
+          telegramcidr:
+            type: http
+            behavior: ipcidr
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/telegramcidr.txt
+            path: ./ruleset/telegramcidr.yaml
+            interval: 86400
+          cncidr:
+            type: http
+            behavior: ipcidr
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/cncidr.txt
+            path: ./ruleset/cncidr.yaml
+            interval: 86400
+          lancidr:
+            type: http
+            behavior: ipcidr
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/lancidr.txt
+            path: ./ruleset/lancidr.yaml
+            interval: 86400
+          applications:
+            type: http
+            behavior: classical
+            url: https://testingcf.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/applications.txt
+            path: ./ruleset/applications.yaml
+            interval: 86400

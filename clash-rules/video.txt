@@ -1,0 +1,4 @@
+payload:
+  - '+.googlevideo.com'
+  - '91.108.56.0/22'
+  - '+.ttvnw.net'

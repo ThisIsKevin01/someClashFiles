@@ -3,12 +3,6 @@
 # 然后再加入自定义配置的proxy groups和rules
 # 达到类似引用proxy providers的效果
 parsers:
-  - url: https://cdn.xmrth.one/link/jgy59hnpmyli5fvz?clash=2&extend=1
-    yaml:
-      prepend-rules:
-        - DOMAIN-SUFFIX,googlevideo.com,🎬Youtube # rules最前面增加一个规则
-        - DOMAIN-SUFFIX,ttvnw.net,🎬Youtube
-        - IP-CIDR,91.108.56.0/22,🎬Youtube,no-resolve
   # 这里设置如何匹配url,也可以直接使用url
   # url: www.url.com
   - reg: ^.*#parser$
